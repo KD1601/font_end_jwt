@@ -1,11 +1,67 @@
 import './Login.scss'
 import { useHistory } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import { loginUser } from '../../services/userService'
 
 const Login = (props) => {
     let history = useHistory()
+
+    const [valueLogin, setValueLogin] = useState('')
+    const [password, setPassword] = useState('')
+
+
+    const defaultObjValidInput = {
+        isValidUsername: true,
+        isValidPassword: true,
+    }
+    const [objValidInput, setObjValidInput] = useState(defaultObjValidInput)
+
     const handleCreateNewAccount = () => {
         history.push('/register')
     }
+
+    const handleLogin = async () => {
+        setObjValidInput(defaultObjValidInput)
+        if (!valueLogin) {
+            setObjValidInput({ ...defaultObjValidInput, isValidUsername: false })
+            toast.error('Please enter your email address or phone number')
+            return
+        }
+        if (!password) {
+            setObjValidInput({ ...defaultObjValidInput, isValidPassword: false })
+            toast.error('Please enter your password')
+            return
+
+        }
+        let res = await loginUser(valueLogin, password)
+        if (res && res.data && +res.data.EC === 0) {
+            let data = {
+                isAuthenticated: true,
+                token: 'fake token'
+            }
+            sessionStorage.setItem('account', JSON.stringify(data))
+            history.push('/users')
+            window.location.reload()
+        }
+        if (res && res.data && +res.data.EC !== 0) {
+            toast.error(res.data.EM)
+        }
+    }
+
+    const handlePressEnter = (e) => {
+        if (e.charCode === 13 && e.code === "Enter") {
+            handleLogin()
+        }
+    }
+
+    useEffect(() => {
+        let session = sessionStorage.getItem('account')
+        if (session) {
+            history.push('/')
+            window.location.reload()
+        }
+    }, [])
 
     return (
         <div className="login-container ">
@@ -23,9 +79,17 @@ const Login = (props) => {
                         <div className='title d-sm-none'>
                             Felix Dev
                         </div>
-                        <input className='form-control' type="text" placeholder='Email address or phone number' />
-                        <input className='form-control' type="password" placeholder='Password' />
-                        <button className='btn btn-primary'>Login</button>
+                        <input className={objValidInput.isValidUsername ? 'form-control' : 'form-control is-invalid'} type="text"
+                            value={valueLogin} onChange={(e) => setValueLogin(e.target.value)}
+                            placeholder='Email address or phone number' />
+                        <input className={objValidInput.isValidPassword ? 'form-control' : 'form-control is-invalid'} type="password"
+                            value={password} onChange={(e) => setPassword(e.target.value)}
+                            placeholder='Password'
+                            onKeyPress={(e) => handlePressEnter(e)}
+                        />
+                        <button className='btn btn-primary'
+                            onClick={() => handleLogin()}
+                        >Login</button>
                         <span className='text-center'><a href="#" className='forgot-password'>Forgot your password?</a></span>
                         <hr />
                         <div className='text-center'>
