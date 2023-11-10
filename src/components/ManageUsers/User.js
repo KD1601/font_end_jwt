@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react"
 import './User.scss'
-import { fetchAllUsers } from '../../services/userService'
+import { fetchAllUsers, deleteUser } from '../../services/userService'
 import ReactPaginate from 'react-paginate';
+import { toast } from 'react-toastify'
+import ModalDelete from './ModalDelete'
+import ModalUser from "./ModalUser";
 
 const Users = (props) => {
     const [listUser, setListUser] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [currentLimit, setCurrentLimit] = useState(3)
     const [totalPages, setTotalPages] = useState(0)
+    const [isShowModalDelete, setIsShowModalDelete] = useState(false)
+    const [dataModal, setDataModal] = useState({})
+    const [isShowModalUser, setIsShowModalUser] = useState(false)
+
 
     useEffect(() => {
         fetchUsers()
@@ -15,7 +22,6 @@ const Users = (props) => {
 
     const fetchUsers = async () => {
         let res = await fetchAllUsers(currentPage, currentLimit)
-        console.log('check res: ', res)
         if (res && res.data && +res.data.EC === 0) {
             setTotalPages(res.data.DT.totalPage)
             setListUser(res.data.DT.users)
@@ -25,6 +31,37 @@ const Users = (props) => {
     // Invoke when user click to request another page.
     const handlePageClick = async (event) => {
         setCurrentPage(+event.selected + 1)
+    }
+
+    const handleDeleteUser = async (user) => {
+        setDataModal(user)
+        setIsShowModalDelete(true)
+
+    }
+
+    const handleClose = () => {
+        setIsShowModalDelete(false)
+        setDataModal({})
+    }
+
+    const OnHideModalUser = () => {
+        setIsShowModalUser(false)
+    }
+
+
+    const confirmDeleteUser = async () => {
+        let response = await deleteUser(dataModal)
+        if (response && +response.data.EC === 0) {
+            toast.success(response.data.EM)
+            await fetchUsers()
+            setIsShowModalDelete(false)
+        } else {
+            toast.error(response.data.EM)
+        }
+    }
+
+    const handleShowModalUser = () => {
+        setIsShowModalUser(true)
     }
 
     return (
@@ -38,7 +75,7 @@ const Users = (props) => {
                         </div>
                         <div className="actions">
                             <button className="btn btn-primary">Refresh</button>
-                            <button className="btn btn-success">Add new user</button>
+                            <button className="btn btn-success" onClick={() => handleShowModalUser()}>Add new user</button>
                         </div>
                     </div>
                     <div className="user-body">
@@ -65,8 +102,10 @@ const Users = (props) => {
                                                     <td>{item.username}</td>
                                                     <td>{item.Group ? item.Group.name : ''}</td>
                                                     <td>
-                                                        <button className="btn btn-warning">Edit</button>
-                                                        <button className="btn btn-danger">Delete</button>
+                                                        <button className="btn btn-warning me-3">Edit</button>
+                                                        <button className="btn btn-danger"
+                                                            onClick={() => handleDeleteUser(item)}
+                                                        >Delete</button>
                                                     </td>
                                                 </tr>
                                             )
@@ -112,7 +151,16 @@ const Users = (props) => {
 
                 </div>
             </div>
-
+            <ModalDelete show={isShowModalDelete}
+                handleClose={handleClose}
+                confirmDeleteUser={confirmDeleteUser}
+                dataModal={dataModal}
+            />
+            <ModalUser
+                title={"Create new user"}
+                onHide={OnHideModalUser}
+                show={isShowModalUser}
+            />
         </>
     )
 }
