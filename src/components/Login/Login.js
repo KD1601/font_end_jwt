@@ -35,7 +35,7 @@ const Login = (props) => {
 
         }
         let res = await loginUser(valueLogin, password)
-        if (res && res.data && +res.EC === 0) {
+        if (res && +res.EC === 0) {
             let data = {
                 isAuthenticated: true,
                 token: 'fake token'
