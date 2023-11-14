@@ -6,25 +6,41 @@ import AppRouters from './routes/AppRoutes';
 import {
   BrowserRouter,
 } from "react-router-dom";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { Rings } from 'react-loader-spinner'
+import { UserContext } from './context/UserContext';
 
 function App() {
-  const [account, setAccount] = useState('')
-  useEffect(() => {
-    let session = sessionStorage.getItem('account')
-    if (session) {
-      setAccount(JSON.parse(session))
-    }
-  }, [])
+  const { user } = useContext(UserContext)
+
   return (
     <>
       <BrowserRouter>
-        <div className='app-header'>
-          <Nav />
-        </div>
-        <div className='app-container'>
-          <AppRouters />
-        </div>
+        {user && user.isLoading ?
+          <div className='loading-container'>
+            <Rings
+              height="80"
+              width="80"
+              radius="9"
+              color='#1877f2'
+              ariaLabel='three-dots-loading'
+              wrapperStyle
+              wrapperClass
+            />
+            <div>Loading data...</div>
+          </div>
+
+          :
+          <>
+            <div className='app-header'>
+              <Nav />
+            </div>
+            <div className='app-container'>
+              <AppRouters />
+            </div>
+          </>
+        }
+
         <ToastContainer
           position="bottom-center"
           autoClose={5000}
