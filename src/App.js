@@ -25,7 +25,7 @@ function App() {
               color='#1877f2'
               ariaLabel='three-dots-loading'
               wrapperStyle
-              wrapperClass
+              wrapperClass='true'
             />
             <div>Loading data...</div>
           </div>
