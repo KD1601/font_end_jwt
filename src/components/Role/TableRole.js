@@ -1,13 +1,18 @@
 import { useEffect, useState, forwardRef, useImperativeHandle } from "react"
 import { fetchAllRole, deleteRole } from '../../services/roleService'
 import { toast } from 'react-toastify'
+import ReactPaginate from 'react-paginate';
+
 
 const TableRole = forwardRef((props, ref) => {
+    const [totalPages, setTotalPages] = useState(0)
     const [listRoles, setListRoles] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [currentLimit, setCurrentLimit] = useState(5)
 
     useEffect(() => {
         getAllRoles()
-    }, [])
+    }, [currentPage])
 
     useImperativeHandle(ref, () => ({
         fetchListRoleAgain() {
@@ -16,10 +21,16 @@ const TableRole = forwardRef((props, ref) => {
     }))
 
     const getAllRoles = async () => {
-        let data = await fetchAllRole()
+        let data = await fetchAllRole(currentPage, currentLimit)
         if (data && data.EC === 0) {
-            setListRoles(data.DT)
+            console.log(data)
+            setTotalPages(data.DT.totalPage)
+            setListRoles(data.DT.roles)
         }
+    }
+
+    const handlePageClick = async (event) => {
+        setCurrentPage(+event.selected + 1)
     }
 
     const handleDeleteRole = async (role) => {
@@ -72,6 +83,30 @@ const TableRole = forwardRef((props, ref) => {
 
             </tbody>
         </table>
+        {totalPages > 0 &&
+            <div className="user-footer">
+                <ReactPaginate
+                    nextLabel="next >"
+                    onPageChange={handlePageClick}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={2}
+                    pageCount={totalPages}
+                    previousLabel="< previous"
+                    pageClassName="page-item"
+                    pageLinkClassName="page-link"
+                    previousClassName="page-item"
+                    previousLinkClassName="page-link"
+                    nextClassName="page-item"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="page-item"
+                    breakLinkClassName="page-link"
+                    containerClassName="pagination"
+                    activeClassName="active"
+                    renderOnZeroPageCount={null}
+                />
+            </div>
+        }
     </>)
 })
 

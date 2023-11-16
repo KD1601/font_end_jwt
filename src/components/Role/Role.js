@@ -7,6 +7,7 @@ import { createRole } from '../../services/roleService'
 import TableRole from './TableRole'
 
 
+
 const Role = (props) => {
     const dataChildDefault = {
         url: '',
@@ -18,6 +19,8 @@ const Role = (props) => {
         child1: dataChildDefault
 
     })
+
+
 
     useEffect(() => {
         Object.entries(listChild).map(([key, value]) => {
@@ -125,6 +128,7 @@ const Role = (props) => {
                     <h3>List current roles:</h3>
                     <TableRole ref={childRef} />
                 </div>
+
 
             </div>
         </div>
