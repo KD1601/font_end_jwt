@@ -9,12 +9,18 @@ import {
 import { useEffect, useState, useContext } from 'react';
 import { Rings } from 'react-loader-spinner'
 import { UserContext } from './context/UserContext';
+import { Scrollbars } from 'react-custom-scrollbars'
 
-function App() {
+const App = () => {
   const { user } = useContext(UserContext)
-
+  const [scrollHeight, setScrollHeight] = useState(0)
+  useEffect(() => {
+    let windowHeight = window.innerHeight
+    setScrollHeight(windowHeight)
+  }, [user])
   return (
-    <>
+    <Scrollbars atuoHide style={{ height: scrollHeight }}>
+
       <BrowserRouter>
         {user && user.isLoading ?
           <div className='loading-container'>
@@ -43,7 +49,7 @@ function App() {
 
         <ToastContainer
           position="bottom-center"
-          autoClose={5000}
+          autoClose={3000}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick
@@ -54,8 +60,8 @@ function App() {
           theme="light"
         />
       </BrowserRouter>
+    </Scrollbars>
 
-    </>
   );
 }
 

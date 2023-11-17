@@ -1,12 +1,12 @@
 import './Login.scss'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 import { useEffect, useState, useContext } from 'react'
 import { toast } from 'react-toastify'
 import { loginUser } from '../../services/userService'
 import { UserContext } from '../../context/UserContext'
 
 const Login = (props) => {
-    const { loginContext } = useContext(UserContext)
+    const { user, loginContext } = useContext(UserContext)
     let history = useHistory()
 
     const [valueLogin, setValueLogin] = useState('')
@@ -63,13 +63,20 @@ const Login = (props) => {
         }
     }
 
+    useEffect(() => {
+        console.log('user.isAuthenticated ', user)
+        if (user && user.isAuthenticated) {
+            history.push('/')
+        }
+    }, [user])
+
     return (
         <div className="login-container ">
             <div className="container">
                 <div className="row px-3 px-sm-0">
                     <div className="content-left col-12 col-sm-7 d-none d-sm-block">
                         <div className='title'>
-                            Felix Dev
+                            <Link to='/'><span title='Return to Homepage'>Felix Dev</span></Link>
                         </div>
                         <div className='detail'>
                             Learn JWT + React Hook
